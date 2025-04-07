@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{% if booking %}Edit Booking{% else %}Book a Table{% endif %} - {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">{% if booking %}Edit Booking{% else %}Book a Table{% endif %} at {{ restaurant.name }}</h3>
+                </div>
+                <div class="card-body">
+                    {% crispy form %}
+
+                    <div class="alert alert-info mt-4">
+                        <h5><i class="fas fa-info-circle"></i> Important Information:</h5>
+                        <ul class="mb-0">
+
+                            <li>Please arrive 10 minutes before your booking time</li>
+                            <li>Your table will be held for 15 minutes after the booking time</li>
+                            <li>For any changes or cancellations, please contact us at least 2 hours before your booking time</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'restaurants:detail' restaurant.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left"></i> Back to Restaurant
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    var today = new Date().toISOString().split('T')[0];
+    document.getElementById('id_booking_date').setAttribute('min', today);
+});
+</script>
+{% endblock %}

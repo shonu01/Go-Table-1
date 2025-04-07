@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Bookings - GoTable{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">My Bookings</h2>
+
+    {% if messages %}
+    <div class="messages mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if bookings %}
+    <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ booking.restaurant.name }}</h5>
+                    <p class="card-text">
+                        <strong>Date:</strong> {{ booking.booking_date }}<br>
+                        <strong>Time:</strong> {{ booking.booking_time }}<br>
+                        <strong>Party Size:</strong> {{ booking.party_size }}<br>
+                        <strong>Status:</strong> 
+                        {% if booking.status == 'pending' %}
+                            <span class="badge bg-info">Pending Approval</span>
+                        {% elif booking.status == 'confirmed' %}
+                            <span class="badge bg-success">Confirmed</span>
+                        {% elif booking.status == 'completed' %}
+                            <span class="badge bg-secondary">Completed</span>
+                        {% elif booking.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% endif %}
+                    </p>
+
+                    {% if booking.special_requests %}
+                    <p class="card-text">
+                        <strong>Special Requests:</strong><br>
+                        {{ booking.special_requests }}
+                    </p>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        
+                        <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-info-circle"></i> Details
+                        </a>
+                        
+                        {% if booking.status == 'pending' %}
+                        <a href="{% url 'bookings:delete' booking.id %}" class="btn btn-outline-danger" 
+                           onclick="return confirm('Are you sure you want to cancel this booking?')">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h5><i class="fas fa-info-circle"></i> No Bookings Yet</h5>
+        <p class="mb-0">You haven't made any bookings yet. Browse our restaurants and make your first reservation!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

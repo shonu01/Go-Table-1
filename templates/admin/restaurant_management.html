@@ -1,0 +1,164 @@
+ {% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2 text-gray-800">Restaurant Management</h1>
+            <p class="mb-4">Manage all restaurants in the system</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'admin:restaurants_restaurant_add' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add New Restaurant
+            </a>
+        </div>
+    </div>
+
+    <!-- Restaurant List -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h6 class="m-0 font-weight-bold text-primary">Restaurants</h6>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group">
+                        <input type="text" id="restaurantSearch" class="form-control" placeholder="Search restaurants...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="restaurantTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Cuisine</th>
+                            <th>Rating</th>
+                            <th>Bookings</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for restaurant in restaurants %}
+                        <tr>
+                            <td>
+                                <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                {{ restaurant.name }}
+                            </td>
+                            <td>{{ restaurant.location }}</td>
+                            <td>{{ restaurant.cuisine_type }}</td>
+                            <td>
+                                <div class="rating">
+                                    {% with ''|center:5 as range %}
+                                    {% for _ in range %}
+                                        <i class="fas fa-star{% if forloop.counter > restaurant.avg_rating|default:0 %}-o{% endif %} text-warning"></i>
+                                    {% endfor %}
+                                    {% endwith %}
+                                    <span class="ms-2">({{ restaurant.avg_rating|default:0|floatformat:1 }})</span>
+                                </div>
+                            </td>
+                            <td>{{ restaurant.booking_count }}</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input status-toggle" type="checkbox" 
+                                           data-restaurant-id="{{ restaurant.id }}"
+                                           {% if restaurant.is_active %}checked{% endif %}>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'admin:restaurants_restaurant_change' restaurant.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'admin:restaurants_restaurant_delete' restaurant.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a href="{% url 'restaurants:detail_by_id' restaurant.id %}" class="btn btn-sm btn-secondary" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle restaurant status toggle
+    document.querySelectorAll('.status-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const restaurantId = this.dataset.restaurantId;
+            fetch(`/admin/api/toggle-restaurant-status/${restaurantId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Restaurant status updated successfully', 'success');
+                } else {
+                    showToast('Failed to update restaurant status', 'error');
+                    this.checked = !this.checked;
+                }
+            })
+            .catch(error => {
+                showToast('An error occurred', 'error');
+                this.checked = !this.checked;
+            });
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('restaurantSearch');
+    const table = document.getElementById('restaurantTable');
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        }
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showToast(message, type) {
+    // Implement toast notification
+    console.log(message);
+}
+</script>
+{% endblock %}

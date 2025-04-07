@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome to GoTable - Restaurant Booking Made Easy{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static "images/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        height: 80vh;
+        display: flex;
+        align-items: center;
+        color: white;
+        position: relative;
+    }
+
+    .hero-content {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        animation: fadeInUp 1s ease;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease 0.2s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+
+    .hero-buttons {
+        animation: fadeInUp 1s ease 0.4s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+
+    .features-section {
+        padding: 5rem 0;
+        background: white;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1);
+    }
+
+    .featured-restaurants {
+        padding: 5rem 0;
+        background: var(--light-bg);
+    }
+
+    .restaurant-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .restaurant-image {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .restaurant-info {
+        padding: 1.5rem;
+    }
+
+    .rating {
+        color: #ffc107;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        .hero-subtitle {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Discover & Book Amazing Restaurants</h1>
+        <p class="hero-subtitle">Experience the finest dining with just a few clicks</p>
+        <div class="hero-buttons">
+            <a href="{% url 'restaurants:list' %}" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-search me-2"></i>Find Restaurants
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="text-center mb-5 section-title">Why Choose GoTable?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Quick & Easy</h3>
+                    <p>Book your table in seconds with our simple reservation system</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3>Top Rated</h3>
+                    <p>Discover the best restaurants in your area with authentic reviews</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Mobile Friendly</h3>
+                    <p>Book on the go with our responsive mobile experience</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Restaurants Section -->
+<section class="featured-restaurants">
+    <div class="container">
+        <h2 class="text-center mb-5 section-title">Featured Restaurants</h2>
+        <div class="row">
+            {% for restaurant in featured_restaurants %}
+            <div class="col-md-4">
+                <div class="card restaurant-card">
+                    {% if restaurant.image %}
+                    <img src="{{ restaurant.image.url }}" class="restaurant-image" alt="{{ restaurant.name }}">
+                    {% endif %}
+                    <div class="restaurant-info">
+                        <h4>{{ restaurant.name }}</h4>
+                        <div class="rating mb-2">
+                            {% for i in "12345"|make_list %}
+                            <i class="fas fa-star{% if forloop.counter > restaurant.rating %}-o{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>{{ restaurant.location }}</p>
+                        <p class="mb-3">{{ restaurant.description|truncatewords:20 }}</p>
+                        <a href="{% url 'restaurants:detail' restaurant.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-info-circle me-2"></i>View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>No featured restaurants available at the moment.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="mb-4">Experience Great Dining</h2>
+                <p class="lead mb-4">Find and book the best restaurants in your area</p>
+                <a href="{% url 'restaurants:list' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Find Restaurants
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

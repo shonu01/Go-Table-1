@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Booking Details - GoTable{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'bookings:list' %}">My Bookings</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Booking Details</li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">Booking Details</h1>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="row mb-4">
+        <div class="col">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Reservation Information</h5>
+                    <span class="badge {% if booking.status == 'pending' %}bg-warning text-dark{% elif booking.status == 'confirmed' %}bg-success{% elif booking.status == 'completed' %}bg-info{% elif booking.status == 'cancelled' %}bg-danger{% endif %}">
+                        {{ booking.status|title }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Restaurant</h6>
+                            <p class="mb-0">
+                                <a href="{% url 'restaurants:detail' booking.restaurant.slug %}">
+                                    {{ booking.restaurant.name }}
+                                </a>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Contact</h6>
+                            <p class="mb-0">{{ booking.restaurant.phone }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Date</h6>
+                            <p class="mb-0">{{ booking.booking_date|date:"F d, Y" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Time</h6>
+                            <p class="mb-0">{{ booking.booking_time|time:"g:i A" }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Party Size</h6>
+                            <p class="mb-0">{{ booking.party_size }} people</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted">Booking ID</h6>
+                            <p class="mb-0">#{{ booking.id }}</p>
+                        </div>
+                    </div>
+                    {% if booking.special_requests %}
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-muted">Special Requests</h6>
+                            <p class="mb-0">{{ booking.special_requests }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <small class="text-muted">Created: {{ booking.created_at|date:"M d, Y" }}</small>
+                        </div>
+                        {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                        <div>
+                            <a href="{% url 'bookings:update' pk=booking.pk %}" class="btn btn-sm btn-outline-primary">Edit Booking</a>
+                            <a href="{% url 'bookings:delete' pk=booking.pk %}" class="btn btn-sm btn-outline-danger cancel-booking" data-booking-id="{{ booking.pk }}">Cancel Booking</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Restaurant Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if booking.restaurant.image %}
+                    <img src="{{ booking.restaurant.image.url }}" alt="{{ booking.restaurant.name }}" class="img-fluid rounded mb-3">
+                    {% endif %}
+                    <h6>{{ booking.restaurant.name }}</h6>
+                    <p class="text-muted">{{ booking.restaurant.cuisine_type }} • {{ booking.restaurant.price_range }}</p>
+                    <p>{{ booking.restaurant.address }}, {{ booking.restaurant.city }}, {{ booking.restaurant.state }} {{ booking.restaurant.postal_code }}</p>
+                    <p><i class="fas fa-phone-alt me-2"></i> {{ booking.restaurant.phone }}</p>
+                    <p><i class="fas fa-envelope me-2"></i> {{ booking.restaurant.email }}</p>
+                    {% if booking.restaurant.website %}
+                    <p><i class="fas fa-globe me-2"></i> <a href="{{ booking.restaurant.website }}" target="_blank">Website</a></p>
+                    {% endif %}
+                    <p><i class="fas fa-clock me-2"></i> {{ booking.restaurant.opening_time|time:"g:i A" }} - {{ booking.restaurant.closing_time|time:"g:i A" }}</p>
+                </div>
+            </div>
+            
+            {% if booking.status == 'confirmed' %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Payment</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'bookings:payment_create' booking_id=booking.pk %}" class="btn btn-primary w-100">Pay Now</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

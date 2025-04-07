@@ -1,0 +1,280 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body p-4">
+                    <h2 class="mb-1">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</h2>
+                    <p class="mb-0">Here's what's happening with your restaurants today.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Restaurants</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ total_restaurants }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-utensils fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Bookings</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ total_bookings }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-calendar-check fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Users</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Today's Bookings</div>
+                            <div class="h5 mb-0 font-weight-bold">{{ today_bookings|default:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold">Bookings Overview</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-link dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#" data-days="7">Last 7 days</a></li>
+                            <li><a class="dropdown-item" href="#" data-days="30">Last 30 days</a></li>
+                            <li><a class="dropdown-item" href="#" data-days="90">Last 90 days</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">Top Restaurants</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_restaurants %}
+                    <div class="list-group list-group-flush">
+                        {% for restaurant in top_restaurants %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ restaurant.name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-star text-warning"></i>
+                                        {{ restaurant.avg_rating|floatformat:1 }}
+                                    </small>
+                                </div>
+                                <a href="{% url 'admin:restaurants_restaurant_change' restaurant.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No restaurants found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">Recent Bookings</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_bookings %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Restaurant</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>{{ booking.user.get_full_name }}</td>
+                                    <td>{{ booking.restaurant.name }}</td>
+                                    <td>{{ booking.booking_date|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ booking.status|lower }}">
+                                            {{ booking.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No recent bookings</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold">Recent Activity</h6>
+                </div>
+                <div class="card-body">
+                    {% if recent_activity %}
+                    <div class="timeline">
+                        {% for activity in recent_activity %}
+                        <div class="timeline-item">
+                            <div class="timeline-icon bg-{{ activity.type }}">
+                                <i class="fas fa-{% if activity.type == 'booking' %}calendar-check{% else %}store{% endif %}"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <p class="mb-1">{{ activity.message }}</p>
+                                <small class="text-muted">{{ activity.timestamp|timesince }} ago</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center mb-0">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extrajs %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize bookings chart
+    const ctx = document.getElementById('bookingsChart').getContext('2d');
+    const bookingsChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Bookings',
+                data: [],
+                borderColor: '#2c3e50',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: 'rgba(44, 62, 80, 0.1)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+
+    // Function to update chart data
+    function updateChartData(days = 7) {
+        fetch(`/admin/api/get-dashboard-stats/?days=${days}`)
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.daily_bookings.map(item => item.day);
+                const values = data.daily_bookings.map(item => item.count);
+                
+                bookingsChart.data.labels = labels;
+                bookingsChart.data.datasets[0].data = values;
+                bookingsChart.update();
+            });
+    }
+
+    // Initialize with 7 days data
+    updateChartData(7);
+
+    // Handle time range selection
+    document.querySelectorAll('[data-days]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const days = e.target.dataset.days;
+            updateChartData(days);
+        });
+    });
+});
+</script>
+{% endblock extrajs %}
+{% endblock content %}

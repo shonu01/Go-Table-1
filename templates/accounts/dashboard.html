@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - GoTable{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Profile Overview</h5>
+                    <div class="text-center mb-3">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'images/default-profile.jpg' %}" alt="Default Profile Picture" class="rounded-circle img-fluid mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    <p class="mb-1"><strong>Name:</strong> {{ user.get_full_name }}</p>
+                    <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+                    <p class="mb-1"><strong>Phone:</strong> {{ user.phone_number|default:"Not provided" }}</p>
+                    <div class="mt-3">
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-primary btn-sm">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if bookings %}
+                    <div class="list-group">
+                        {% for booking in bookings %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ booking.restaurant.name }}</h6>
+                                <small>{{ booking.booking_date|date }} at {{ booking.booking_time|time }}</small>
+                            </div>
+                            <p class="mb-1">{{ booking.party_size }} guests</p>
+                            <small class="text-muted">Status: {{ booking.get_status_display }}</small>
+                            <div class="mt-2">
+                                <a href="{% url 'bookings:detail' booking.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                <a href="{% url 'bookings:update' booking.pk %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                <a href="{% url 'bookings:delete' booking.pk %}" class="btn btn-sm btn-outline-danger cancel-booking" data-booking-id="{{ booking.pk }}">Cancel</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'bookings:list' %}" class="btn btn-primary">View All Bookings</a>
+                    </div>
+                    {% else %}
+                    <p class="mb-0">No recent bookings found.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Notifications</h5>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                    <div class="list-group">
+                        {% for notification in notifications %}
+                        <div class="list-group-item {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ notification.get_type_display }}</h6>
+                                <small>{{ notification.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="mb-1">{{ notification.message }}</p>
+                            {% if not notification.is_read %}
+                            <a href="{% url 'notifications:mark_read' notification.pk %}" class="btn btn-sm btn-outline-primary mt-2">Mark as Read</a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-3">
+                        <a href="{% url 'notifications:list' %}" class="btn btn-primary">View All Notifications</a>
+                    </div>
+                    {% else %}
+                    <p class="mb-0">No recent notifications found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

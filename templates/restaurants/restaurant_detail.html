@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ restaurant.name }} - GoTable{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Restaurant Info -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                {% if restaurant.image %}
+                <img src="{{ restaurant.image.url }}" class="card-img-top" alt="{{ restaurant.name }}" style="height: 300px; object-fit: cover;">
+                {% else %}
+                <img src="{% static 'images/default-restaurant.jpg' %}" alt="Default Restaurant Image" class="card-img-top" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">{{ restaurant.name }}</h2>
+                    <p class="text-muted">
+                        <i class="fas fa-map-marker-alt"></i> {{ restaurant.address }}<br>
+                        <i class="fas fa-utensils"></i> {{ restaurant.cuisine_type }}<br>
+                        <i class="fas fa-dollar-sign"></i> {{ restaurant.price_range }}
+                    </p>
+                    <p class="card-text">{{ restaurant.description }}</p>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-clock"></i> Hours</h5>
+                            <p>{{ restaurant.opening_time|time:"g:i A" }} - {{ restaurant.closing_time|time:"g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-phone"></i> Contact</h5>
+                            <p>
+                                {{ restaurant.phone }}<br>
+                                {{ restaurant.email }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'bookings:create' restaurant.id %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Book a Table
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Section -->
+            {% if restaurant.menu_items.all %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="mb-4">Menu</h3>
+                    {% for item in restaurant.menu_items.all %}
+                    <div class="menu-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <h5>{{ item.name }}</h5>
+                            <span class="price">${{ item.price }}</span>
+                        </div>
+                        <p class="text-muted">{{ item.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Reviews Section -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="mb-4">Reviews</h3>
+                    {% if restaurant.reviews.all %}
+                        {% for review in restaurant.reviews.all %}
+                        <div class="review mb-3">
+                            <div class="d-flex justify-content-between">
+                                <h5>{{ review.user.get_full_name }}</h5>
+                                <div class="rating">
+                                    {% for i in "12345" %}
+                                    <i class="fas fa-star{% if forloop.counter > review.rating %}-o{% endif %} text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="text-muted mb-0">{{ review.created_at|date:"F d, Y" }}</p>
+                            <p>{{ review.comment }}</p>
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No reviews yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Form Section -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="mb-4">Book a Table</h3>
+                    <form method="post" action="{% url 'bookings:create' restaurant.id %}">
+                        {% csrf_token %}
+                        {{ booking_form.as_p }}
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-calendar-plus"></i> Make Reservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

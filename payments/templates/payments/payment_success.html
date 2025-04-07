@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Success - {{ booking.restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title mb-4">Payment Successful!</h2>
+                    <p class="lead">Thank you for your booking at {{ booking.restaurant.name }}.</p>
+                    
+                    <div class="booking-details mt-4">
+                        <h4>Booking Details</h4>
+                        <p><strong>Date:</strong> {{ booking.booking_date }}</p>
+                        <p><strong>Time:</strong> {{ booking.booking_time }}</p>
+                        <p><strong>Number of Guests:</strong> {{ booking.number_of_guests }}</p>
+                        <p><strong>Amount Paid:</strong> ${{ booking.total_amount }}</p>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-primary">View Booking Details</a>
+                        <a href="{% url 'restaurants:list' %}" class="btn btn-outline-primary">Book Another Table</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

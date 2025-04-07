@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Cancellation - GoTable{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'bookings:list' %}">My Bookings</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'bookings:detail' pk=booking.pk %}">Booking Details</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Cancel Booking</li>
+                </ol>
+            </nav>
+            <h1 class="mb-3">Confirm Cancellation</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-4">Are you sure you want to cancel this booking?</h5>
+                    
+                    <div class="alert alert-warning">
+                        <p class="mb-0">Restaurant: <strong>{{ booking.restaurant.name }}</strong></p>
+                        <p class="mb-0">Date: <strong>{{ booking.booking_date|date:"F d, Y" }}</strong></p>
+                        <p class="mb-0">Time: <strong>{{ booking.booking_time|time:"g:i A" }}</strong></p>
+                        <p class="mb-0">Party Size: <strong>{{ booking.party_size }} people</strong></p>
+                    </div>
+                    
+                    <form method="post" class="text-center">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a href="{% url 'bookings:detail' pk=booking.pk %}" class="btn btn-outline-secondary me-md-2">No, Go Back</a>
+                            <button type="submit" class="btn btn-danger">Yes, Cancel Booking</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

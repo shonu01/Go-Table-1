@@ -1,0 +1,226 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .booking-status {
+        font-weight: 500;
+    }
+    .status-pending {
+        color: #ffc107;
+    }
+    .status-approved {
+        color: #28a745;
+    }
+    .status-rejected {
+        color: #dc3545;
+    }
+    .booking-card {
+        transition: transform 0.3s ease;
+    }
+    .booking-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-2 text-gray-800">Booking Management</h1>
+            <p class="mb-4">Manage restaurant bookings</p>
+        </div>
+    </div>
+
+    <!-- Pending Bookings -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h6 class="m-0 font-weight-bold text-primary">Pending Bookings</h6>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group">
+                        <input type="text" id="pendingBookingSearch" class="form-control" placeholder="Search pending bookings...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="pendingBookingTable">
+                    <thead>
+                        <tr>
+                            <th>Restaurant</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Party Size</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in pending_bookings %}
+                        <tr>
+                            <td>{{ booking.restaurant.name }}</td>
+                            <td>{{ booking.user.get_full_name }}</td>
+                            <td>{{ booking.booking_date|date:"M d, Y" }} at {{ booking.booking_time|time:"g:i A" }}</td>
+                            <td>{{ booking.party_size }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'admin:approve_booking' booking.id %}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-check"></i> Approve
+                                    </a>
+                                    <a href="{% url 'admin:reject_booking' booking.id %}" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-times"></i> Reject
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approved Bookings -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h6 class="m-0 font-weight-bold text-primary">Approved Bookings</h6>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group">
+                        <input type="text" id="approvedBookingSearch" class="form-control" placeholder="Search approved bookings...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="approvedBookingTable">
+                    <thead>
+                        <tr>
+                            <th>Restaurant</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Party Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in approved_bookings %}
+                        <tr>
+                            <td>{{ booking.restaurant.name }}</td>
+                            <td>{{ booking.user.get_full_name }}</td>
+                            <td>{{ booking.booking_date|date:"M d, Y" }} at {{ booking.booking_time|time:"g:i A" }}</td>
+                            <td>{{ booking.party_size }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejected Bookings -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h6 class="m-0 font-weight-bold text-primary">Rejected Bookings</h6>
+                </div>
+                <div class="col-auto">
+                    <div class="input-group">
+                        <input type="text" id="rejectedBookingSearch" class="form-control" placeholder="Search rejected bookings...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="rejectedBookingTable">
+                    <thead>
+                        <tr>
+                            <th>Restaurant</th>
+                            <th>Customer</th>
+                            <th>Date & Time</th>
+                            <th>Party Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in rejected_bookings %}
+                        <tr>
+                            <td>{{ booking.restaurant.name }}</td>
+                            <td>{{ booking.user.get_full_name }}</td>
+                            <td>{{ booking.booking_date|date:"M d, Y" }} at {{ booking.booking_time|time:"g:i A" }}</td>
+                            <td>{{ booking.party_size }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search functionality
+    const pendingSearchInput = document.getElementById('pendingBookingSearch');
+    const pendingTable = document.getElementById('pendingBookingTable');
+    const pendingRows = pendingTable.getElementsByTagName('tr');
+
+    pendingSearchInput.addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        
+        for (let i = 1; i < pendingRows.length; i++) {
+            const row = pendingRows[i];
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        }
+    });
+
+    const approvedSearchInput = document.getElementById('approvedBookingSearch');
+    const approvedTable = document.getElementById('approvedBookingTable');
+    const approvedRows = approvedTable.getElementsByTagName('tr');
+
+    approvedSearchInput.addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        
+        for (let i = 1; i < approvedRows.length; i++) {
+            const row = approvedRows[i];
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        }
+    });
+
+    const rejectedSearchInput = document.getElementById('rejectedBookingSearch');
+    const rejectedTable = document.getElementById('rejectedBookingTable');
+    const rejectedRows = rejectedTable.getElementsByTagName('tr');
+
+    rejectedSearchInput.addEventListener('keyup', function() {
+        const query = this.value.toLowerCase();
+        
+        for (let i = 1; i < rejectedRows.length; i++) {
+            const row = rejectedRows[i];
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

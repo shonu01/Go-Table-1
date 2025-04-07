@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Notifications - GoTable{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Notifications</h1>
+                {% if notifications %}
+                <a href="{% url 'notifications:mark_all_read' %}" class="btn btn-outline-primary">
+                    Mark All as Read
+                </a>
+                {% endif %}
+            </div>
+
+            {% if notifications %}
+            <div class="list-group">
+                {% for notification in notifications %}
+                <div class="list-group-item list-group-item-action {% if not notification.is_read %}active{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ notification.get_type_display }}</h5>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        {% if notification.booking %}
+                        <a href="{% url 'bookings:detail' notification.booking.pk %}" class="btn btn-sm btn-primary">
+                            View Booking
+                        </a>
+                        {% endif %}
+                        {% if not notification.is_read %}
+                        <a href="{% url 'notifications:mark_read' notification.pk %}" class="btn btn-sm btn-outline-secondary">
+                            Mark as Read
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if notifications.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if notifications.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notifications.previous_page_number }}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Previous</span>
+                    </li>
+                    {% endif %}
+
+                    {% for i in notifications.paginator.page_range %}
+                    <li class="page-item {% if notifications.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if notifications.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notifications.next_page_number }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">Next</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="alert alert-info">
+                <p class="mb-0">You have no notifications.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,215 @@
+.chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.chatbot.chatbot-minimized {
+    height: 50px;
+    width: 50px;
+    border-radius: 25px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.chatbot.chatbot-minimized .chatbot-messages,
+.chatbot.chatbot-minimized .chatbot-input-container {
+    display: none;
+}
+
+.chatbot.chatbot-minimized .chatbot-header {
+    padding: 0;
+    height: 50px;
+    width: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 25px;
+}
+
+.chatbot.chatbot-minimized .chatbot-title {
+    display: none;
+}
+
+.chatbot-header {
+    background: #007bff;
+    color: white;
+    padding: 15px;
+    border-radius: 15px 15px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
+}
+
+#chatbot-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.2em;
+    transition: transform 0.2s;
+}
+
+#chatbot-toggle:hover {
+    transform: scale(1.1);
+}
+
+.chatbot-messages {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f8f9fa;
+}
+
+.chatbot-message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 5px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    background: #007bff;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    background: white;
+    color: #1c1e21;
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.chatbot-input-container {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+    background: white;
+}
+
+#chatbot-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+#chatbot-input:focus {
+    border-color: #007bff;
+}
+
+#chatbot-submit {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#chatbot-submit:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+
+.chatbot-restaurants {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 100%;
+}
+
+.chatbot-restaurant-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    transition: transform 0.2s;
+}
+
+.chatbot-restaurant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.chatbot-restaurant-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.chatbot-restaurant-card .no-image {
+    width: 100%;
+    height: 120px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 2em;
+}
+
+.restaurant-info {
+    padding: 12px;
+}
+
+.restaurant-info h4 {
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+    color: #1c1e21;
+}
+
+.restaurant-info p {
+    margin: 4px 0;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.restaurant-info p i {
+    width: 20px;
+    color: #007bff;
+}
+
+.restaurant-info .btn {
+    margin-top: 8px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.restaurant-info .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
