@@ -9,8 +9,10 @@ urlpatterns = [
     path('<int:pk>/', views.booking_detail, name='detail'),
     path('<int:pk>/update/', views.booking_update, name='update'),
     path('<int:pk>/delete/', views.booking_delete, name='delete'),
+    path('<int:pk>/invoice/', views.download_invoice, name='download_invoice'),
 
     path('<int:booking_id>/payment/create/', views.payment_create, name='payment_create'),
     path('payment/<int:pk>/', views.payment_detail, name='payment_detail'),
     path('payment/history/', views.payment_history, name='payment_history'),
+    path('payment/callback/', views.payment_callback, name='payment_callback'),
 ]

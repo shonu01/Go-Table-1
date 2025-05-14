@@ -5,72 +5,113 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="mb-4">My Bookings</h2>
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="mb-3">My Bookings</h1>
+        </div>
+    </div>
 
     {% if messages %}
-    <div class="messages mb-4">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="row mb-4">
+        <div class="col">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
-    {% if bookings %}
     <div class="row">
-        {% for booking in bookings %}
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm h-100">
+        <div class="col">
+            {% if bookings %}
+            <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">{{ booking.restaurant.name }}</h5>
-                    <p class="card-text">
-                        <strong>Date:</strong> {{ booking.booking_date }}<br>
-                        <strong>Time:</strong> {{ booking.booking_time }}<br>
-                        <strong>Party Size:</strong> {{ booking.party_size }}<br>
-                        <strong>Status:</strong> 
-                        {% if booking.status == 'pending' %}
-                            <span class="badge bg-info">Pending Approval</span>
-                        {% elif booking.status == 'confirmed' %}
-                            <span class="badge bg-success">Confirmed</span>
-                        {% elif booking.status == 'completed' %}
-                            <span class="badge bg-secondary">Completed</span>
-                        {% elif booking.status == 'cancelled' %}
-                            <span class="badge bg-danger">Cancelled</span>
-                        {% endif %}
-                    </p>
-
-                    {% if booking.special_requests %}
-                    <p class="card-text">
-                        <strong>Special Requests:</strong><br>
-                        {{ booking.special_requests }}
-                    </p>
-                    {% endif %}
-
-                    <div class="mt-3">
-                        
-                        <a href="{% url 'bookings:detail' booking.id %}" class="btn btn-outline-primary">
-                            <i class="fas fa-info-circle"></i> Details
-                        </a>
-                        
-                        {% if booking.status == 'pending' %}
-                        <a href="{% url 'bookings:delete' booking.id %}" class="btn btn-outline-danger" 
-                           onclick="return confirm('Are you sure you want to cancel this booking?')">
-                            <i class="fas fa-times-circle"></i> Cancel
-                        </a>
-                        {% endif %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Restaurant</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Party Size</th>
+                                    <th>Status</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'restaurants:detail' booking.restaurant.slug %}" class="text-decoration-none">
+                                            {{ booking.restaurant.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ booking.booking_date|date:"M d, Y" }}</td>
+                                    <td>{{ booking.booking_time|time:"g:i A" }}</td>
+                                    <td>{{ booking.party_size }} people</td>
+                                    <td>
+                                        <span class="badge {% if booking.status == 'pending' %}bg-warning text-dark{% elif booking.status == 'confirmed' %}bg-success{% elif booking.status == 'completed' %}bg-info{% elif booking.status == 'cancelled' %}bg-danger{% endif %}">
+                                            {{ booking.status|title }}
+                                        </span>
+                                    </td>
+                                    <td>₹{{ booking.amount|floatformat:2 }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'bookings:detail' pk=booking.pk %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>View
+                                            </a>
+                                            {% if booking.status == 'confirmed' %}
+                                            <a href="{% url 'bookings:download_invoice' pk=booking.pk %}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-download me-1"></i>Invoice
+                                            </a>
+                                            {% endif %}
+                                            {% if booking.status == 'pending' or booking.status == 'confirmed' %}
+                                            <a href="{% url 'bookings:update' pk=booking.pk %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit me-1"></i>Edit
+                                            </a>
+                                            <a href="{% url 'bookings:delete' pk=booking.pk %}" class="btn btn-sm btn-outline-danger cancel-booking" data-booking-id="{{ booking.pk }}">
+                                                <i class="fas fa-trash me-1"></i>Cancel
+                                            </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                <h3>No Bookings Found</h3>
+                <p class="text-muted">You haven't made any bookings yet.</p>
+                <a href="{% url 'restaurants:list' %}" class="btn btn-primary">
+                    <i class="fas fa-utensils me-2"></i>Find Restaurants
+                </a>
+            </div>
+            {% endif %}
         </div>
-        {% endfor %}
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        <h5><i class="fas fa-info-circle"></i> No Bookings Yet</h5>
-        <p class="mb-0">You haven't made any bookings yet. Browse our restaurants and make your first reservation!</p>
-    </div>
-    {% endif %}
 </div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle cancel booking confirmation
+        const cancelButtons = document.querySelectorAll('.cancel-booking');
+        cancelButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to cancel this booking?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

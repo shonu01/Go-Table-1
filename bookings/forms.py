@@ -33,7 +33,7 @@ class BookingForm(forms.ModelForm):
             'class': 'form-control',
             'placeholder': 'Enter your phone number (e.g., 9876543210)'
         }),
-        help_text='We will send OTP to this number for booking verification'
+        help_text='We may contact you on this number regarding your booking'
     )
 
     booking_date = forms.DateField(
@@ -46,7 +46,7 @@ class BookingForm(forms.ModelForm):
 
     class Meta:
         model = Booking
-        fields = ['booking_date', 'booking_time', 'party_size', 'special_requests', 'phone_number']
+        fields = ['booking_date', 'booking_time', 'party_size', 'seating_preference', 'special_requests', 'phone_number']
         widgets = {
             'party_size': forms.NumberInput(attrs={
                 'class': 'form-control',
@@ -73,6 +73,10 @@ class BookingForm(forms.ModelForm):
             Row(
                 Column('party_size', css_class='form-group col-md-6'),
                 Column('phone_number', css_class='form-group col-md-6'),
+                css_class='form-row'
+            ),
+            Row(
+                Column('seating_preference', css_class='form-group col-md-12'),
                 css_class='form-row'
             ),
             'special_requests',

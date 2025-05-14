@@ -124,8 +124,13 @@ LOGIN_REDIRECT_URL = 'restaurants:home'
 LOGOUT_REDIRECT_URL = 'restaurants:home'
 LOGIN_URL = 'accounts:login'
 
-# Email settings - Using console backend for development
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = 'noreply@gotable.com'
 
 # Crispy Forms settings
@@ -167,6 +172,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
 
 # Razorpay Settings
-RAZORPAY_KEY_ID = 'your_razorpay_key_id'
-RAZORPAY_KEY_SECRET = 'your_razorpay_key_secret'
+RAZORPAY_KEY_ID = 'rzp_test_pQjVUp8LPUbczf'
+RAZORPAY_KEY_SECRET = 'piqxX026iaBI11W8IUTmYb3e'
 RAZORPAY_WEBHOOK_SECRET = 'your_razorpay_webhook_secret'
